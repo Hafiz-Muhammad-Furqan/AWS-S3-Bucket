@@ -18,6 +18,7 @@ const createProduct = async (req, res) => {
   const { name, price, category, fileName } = req.body;
   if (!name || !price || !category || !fileName) {
     res.status(400).json({ message: "All fields are required" });
+    return
   }
   const product = await productModel.create({
     name,
@@ -28,4 +29,9 @@ const createProduct = async (req, res) => {
   res.status(201).json({ message: "Product created successfully", product });
 };
 
-export { generatePreSignedURL, createProduct };
+const getAllProducts = async (req , res) => {
+  const products = await productModel.find({});
+  res.status(200).json({ products });
+}
+
+export { generatePreSignedURL, createProduct, getAllProducts };

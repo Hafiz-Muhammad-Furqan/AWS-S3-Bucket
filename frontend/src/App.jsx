@@ -8,7 +8,7 @@ import {
   Loader2,
 } from "lucide-react";
 
-const ProductForm = () => {
+const ProductForm = ({onSuccess}) => {
   const [imagePreview, setImagePreview] = useState(null);
   const [imageName, setImageName] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -91,6 +91,7 @@ const ProductForm = () => {
       if (!response.ok) throw new Error("Failed to create product");
 
       alert("Product created successfully!");
+      onSuccess();
       e.target.reset();
       setImagePreview(null);
       setImageName(null);
@@ -227,4 +228,90 @@ const ProductForm = () => {
   );
 };
 
-export default ProductForm;
+
+const App = () => {
+  const [products, setProducts] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/products`
+      );
+      if (!res.ok) throw new Error("Fetch failed");
+      const data = await res.json();
+      setProducts(data.products);
+    } catch (err) {
+      console.error(err);
+      alert("Products fetch failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const handleProductCreated = () => {
+    setShowForm(false);
+    fetchProducts();
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-900 p-6">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-semibold text-white">Products</h1>
+
+        {!showForm && (
+          <button
+            onClick={() => setShowForm(true)}
+            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg"
+          >
+            <Plus size={18} />
+            Create Product
+          </button>
+        )}
+      </div>
+
+      {/* Conditional Rendering */}
+      {showForm ? (
+        <ProductForm onSuccess={handleProductCreated} />
+      ) : loading ? (
+        <div className="flex justify-center mt-20">
+          <Loader2 className="animate-spin text-indigo-500" size={40} />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {products.map((p) => (
+            <div
+              key={p._id}
+              className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden"
+            >
+              <img
+                src={`${import.meta.env.VITE_IMAGES_AWS_CDN}/${p.fileName}`}
+                alt={p.name}
+                className="w-full h-48 object-cover"
+              />
+
+              <div className="p-4">
+                <h2 className="text-white font-medium">{p.name}</h2>
+                <p className="text-indigo-400 font-semibold">
+                  Rs {p.price}
+                </p>
+                <p className="text-sm text-gray-400">{p.category}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default App;
+
+
