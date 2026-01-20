@@ -1,14 +1,16 @@
 import { v4 as uuidv4 } from "uuid";
 import productModel from "../models/productModel.js";
+import createPresignedUrlWithClient from "../config/awsClient.js";
 
 const generatePreSignedURL = async (req, res) => {
-  const { mime } = req.body;
+  const { mime } = req.query;
   const fileName = uuidv4();
   const fullName = `${fileName}.${mime}`;
   const url = await createPresignedUrlWithClient({
     bucket: process.env.S3_BUCKET,
     key: fullName,
   });
+
   res.json({ url, fullName });
 };
 

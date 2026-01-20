@@ -1,8 +1,8 @@
+import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import cors from "cors";
 import connectDB from "./config/db.js";
-import dotenv from "dotenv";
-dotenv.config();
 import productRoutes from "./routes/productRoutes.js";
 
 const app = express();
@@ -22,7 +22,7 @@ app.get("/", (req, res) => {
   res.send("Welcome to s3 API");
 });
 
-app.use("/api" , productRoutes);
+app.use("/api", productRoutes);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
